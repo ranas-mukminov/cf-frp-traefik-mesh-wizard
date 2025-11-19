@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cf-frp-traefik-mesh-wizard"
+version = "0.1.0"
+description = "Cloudflare + FRP + Traefik mesh generator driven by a single declarative YAML"
+authors = [{name = "Ranas Mukminov"}]
+license = {text = "Apache-2.0"}
+requires-python = ">=3.10"
+readme = "README.md"
+keywords = ["cloudflare", "frp", "traefik", "mesh", "devsecops"]
+classifiers = [
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: System :: Networking",
+]
+dependencies = [
+  "PyYAML>=6.0",
+  "jsonschema>=4.17",
+  "typer>=0.9",
+  "rich>=13.0",
+]
+
+[project.optional-dependencies]
+ai = ["openai>=1.0"]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "ruff",
+  "black",
+  "isort",
+  "yamllint",
+  "bandit",
+  "pip-audit",
+]
+
+[project.scripts]
+mesh-wizard = "mesh_wizard.cli:app"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "I", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

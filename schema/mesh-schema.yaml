@@ -1,0 +1,226 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: MeshTopology
+description: Declarative Cloudflare + FRP + Traefik mesh topology
+type: object
+required:
+  - mesh
+  - nodes
+  - services
+properties:
+  mesh:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        minLength: 1
+      description:
+        type: string
+  cloudflare:
+    type: object
+    required:
+      - tunnel_name
+    properties:
+      account_id:
+        type: string
+      tunnel_name:
+        type: string
+      zone:
+        type: string
+      credentials_file:
+        type: string
+      dns:
+        type: array
+        items:
+          type: object
+          required:
+            - hostname
+            - entrypoint
+            - target
+          properties:
+            hostname:
+              type: string
+            entrypoint:
+              type: string
+            target:
+              type: string
+  nodes:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required:
+        - id
+        - role
+      properties:
+        id:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+        role:
+          type: string
+          enum:
+            - public_vps
+            - lan_cluster
+            - edge_device
+        location:
+          type: string
+        public_ip:
+          type: string
+        lan_ip:
+          type: string
+        labels:
+          type: array
+          items:
+            type: string
+        frp:
+          type: object
+          properties:
+            server:
+              type: boolean
+              default: false
+            client:
+              type: boolean
+              default: false
+            bind_port:
+              type: integer
+              minimum: 1
+            vhost_http_port:
+              type: integer
+              minimum: 1
+            vhost_https_port:
+              type: integer
+              minimum: 1
+            server_addr:
+              type: string
+            server_port:
+              type: integer
+              minimum: 1
+            token:
+              type: string
+            proxies:
+              type: array
+              items:
+                type: object
+                required:
+                  - name
+                  - type
+                  - local_ip
+                  - local_port
+                properties:
+                  name:
+                    type: string
+                  type:
+                    type: string
+                    enum:
+                      - tcp
+                      - udp
+                      - http
+                      - https
+                  local_ip:
+                    type: string
+                  local_port:
+                    type: integer
+                    minimum: 1
+                  remote_port:
+                    type: integer
+                    minimum: 1
+                  custom_domains:
+                    type: array
+                    items:
+                      type: string
+                  subdomain:
+                    type: string
+        traefik:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              default: false
+            entrypoints:
+              type: array
+              items:
+                type: object
+                required:
+                  - name
+                  - port
+                properties:
+                  name:
+                    type: string
+                  port:
+                    type: integer
+                    minimum: 1
+            log_level:
+              type: string
+              enum:
+                - DEBUG
+                - INFO
+                - WARN
+                - ERROR
+            provider_directory:
+              type: string
+  services:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required:
+        - id
+        - type
+        - node
+      properties:
+        id:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - http
+            - tcp
+        node:
+          type: string
+        via:
+          type: string
+          enum:
+            - traefik
+            - frp
+            - direct
+        router:
+          type: object
+          properties:
+            rule:
+              type: string
+            entrypoints:
+              type: array
+              items:
+                type: string
+            service:
+              type: string
+            tls:
+              type: boolean
+        backend:
+          type: object
+          properties:
+            type:
+              type: string
+              enum:
+                - frp_http
+                - frp_tcp
+                - static_url
+            proxy_name:
+              type: string
+            url:
+              type: string
+        target:
+          type: object
+          properties:
+            node:
+              type: string
+            ip:
+              type: string
+            port:
+              type: integer
+              minimum: 1
+additionalProperties: false

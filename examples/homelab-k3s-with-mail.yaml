@@ -1,0 +1,93 @@
+mesh:
+  name: homelab-k3s-mail
+  description: Cloudflare tunnel landing on Traefik VPS, FRP into LAN for apps and mail relay
+
+cloudflare:
+  account_id: CF_ACCOUNT_ID
+  tunnel_name: homelab-mail
+  zone: example.org
+  dns:
+    - hostname: grafana.example.org
+      entrypoint: websecure
+      target: service://grafana-router
+    - hostname: mail.example.org
+      entrypoint: websecure
+      target: service://mail-router
+
+nodes:
+  - id: vps-ingress
+    role: public_vps
+    location: hetzner-hel1
+    public_ip: 203.0.113.44
+    frp:
+      server: true
+      bind_port: 7300
+      vhost_http_port: 23080
+      vhost_https_port: 23443
+      token: HOMELAB_MESH_TOKEN
+    traefik:
+      enabled: true
+      entrypoints:
+        - name: web
+          port: 80
+        - name: websecure
+          port: 443
+      provider_directory: /etc/traefik/dynamic
+  - id: lan-k3s
+    role: lan_cluster
+    lan_ip: 192.168.30.10
+    frp:
+      client: true
+      server_addr: vps-ingress
+      server_port: 7300
+      token: HOMELAB_MESH_TOKEN
+      proxies:
+        - name: grafana-http
+          type: http
+          local_ip: 10.42.2.20
+          local_port: 3000
+          custom_domains:
+            - grafana.example.org
+  - id: lan-mail
+    role: edge_device
+    lan_ip: 192.168.30.50
+    frp:
+      client: true
+      server_addr: vps-ingress
+      server_port: 7300
+      token: HOMELAB_MESH_TOKEN
+      proxies:
+        - name: mail-smtp
+          type: tcp
+          local_ip: 192.168.30.50
+          local_port: 2525
+          remote_port: 22525
+
+services:
+  - id: grafana-router
+    type: http
+    node: vps-ingress
+    via: traefik
+    router:
+      rule: "Host(`grafana.example.org`)"
+      entrypoints:
+        - websecure
+      service: grafana-service
+      tls: true
+    backend:
+      type: frp_http
+      proxy_name: grafana-http
+
+  - id: mail-router
+    type: tcp
+    node: vps-ingress
+    via: traefik
+    router:
+      rule: HostSNI(`mail.example.org`)
+      entrypoints:
+        - websecure
+      service: mail-service
+      tls: true
+    backend:
+      type: frp_tcp
+      proxy_name: mail-smtp

@@ -1,0 +1,94 @@
+mesh:
+  name: multi-vps-k3s
+  description: Two public entry nodes with FRP hub reaching k3s LAN cluster
+
+cloudflare:
+  account_id: CF_ACCOUNT_ID
+  tunnel_name: mesh-multi
+  zone: example.net
+  dns:
+    - hostname: api.example.net
+      entrypoint: websecure
+      target: service://k3s-api-router
+    - hostname: apps.example.net
+      entrypoint: websecure
+      target: service://apps-router
+
+nodes:
+  - id: vps-core
+    role: public_vps
+    public_ip: 198.51.100.11
+    location: do-fra
+    frp:
+      server: true
+      bind_port: 7100
+      vhost_http_port: 20080
+      vhost_https_port: 20443
+      token: CORE_MESH_TOKEN
+    traefik:
+      enabled: true
+      entrypoints:
+        - name: websecure
+          port: 443
+        - name: web
+          port: 80
+      log_level: INFO
+  - id: vps-dr
+    role: public_vps
+    public_ip: 198.51.100.20
+    location: do-ams
+    frp:
+      server: true
+      bind_port: 7200
+      vhost_http_port: 21080
+      vhost_https_port: 21443
+      token: DR_MESH_TOKEN
+  - id: k3s-lan
+    role: lan_cluster
+    lan_ip: 192.168.10.40
+    frp:
+      client: true
+      server_addr: vps-core
+      server_port: 7100
+      token: CORE_MESH_TOKEN
+      proxies:
+        - name: k3s-api
+          type: tcp
+          local_ip: 10.43.0.1
+          local_port: 6443
+          remote_port: 26443
+        - name: apps-http
+          type: http
+          local_ip: 10.42.1.50
+          local_port: 8080
+          custom_domains:
+            - apps.example.net
+
+services:
+  - id: k3s-api-router
+    type: tcp
+    node: vps-core
+    via: traefik
+    router:
+      rule: HostSNI(`api.example.net`)
+      entrypoints:
+        - websecure
+      service: k3s-api
+      tls: true
+    backend:
+      type: frp_tcp
+      proxy_name: k3s-api
+
+  - id: apps-router
+    type: http
+    node: vps-core
+    via: traefik
+    router:
+      rule: "Host(`apps.example.net`)"
+      entrypoints:
+        - websecure
+      service: apps-http
+      tls: true
+    backend:
+      type: frp_http
+      proxy_name: apps-http

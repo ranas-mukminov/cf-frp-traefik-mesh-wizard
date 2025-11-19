@@ -1,0 +1,56 @@
+mesh:
+  name: single-vps
+  description: One public VPS with Cloudflare tunnel feeding Traefik + FRP
+
+cloudflare:
+  account_id: CF_ACCOUNT_ID
+  tunnel_name: vps-homelab
+  zone: example.com
+  dns:
+    - hostname: apps.example.com
+      entrypoint: websecure
+      target: service://apps-router
+
+nodes:
+  - id: vps-hetzner
+    role: public_vps
+    location: hetzner-nbg
+    public_ip: 203.0.113.10
+    frp:
+      server: true
+      bind_port: 7000
+      vhost_http_port: 19080
+      vhost_https_port: 19443
+      token: CHANGE_ME_SECURE_TOKEN
+    traefik:
+      enabled: true
+      entrypoints:
+        - name: web
+          port: 80
+        - name: websecure
+          port: 443
+      log_level: INFO
+
+services:
+  - id: apps-router
+    type: http
+    node: vps-hetzner
+    via: traefik
+    router:
+      rule: "Host(`apps.example.com`)"
+      entrypoints:
+        - websecure
+      service: apps-service
+      tls: true
+    backend:
+      type: frp_http
+      proxy_name: apps-http
+
+  - id: apps-http
+    type: http
+    node: vps-hetzner
+    via: frp
+    backend:
+      type: static_url
+      url: http://127.0.0.1:19080
+    description: FRP vhost HTTP forwarded to LAN client
