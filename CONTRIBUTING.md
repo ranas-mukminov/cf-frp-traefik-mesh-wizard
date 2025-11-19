@@ -40,4 +40,31 @@ Thank you for helping `cf-frp-traefik-mesh-wizard` evolve. This project targets 
 - Prefer small, typed functions and docstrings describing intent rather than implementation details.
 
 ## Communication
-Open a GitHub issue for significant changes before implementing them. For consulting or support, visit [run-as-daemon.ru](https://run-as-daemon.ru).
+
+Open a GitHub issue for significant changes before implementing them. 
+
+### Community Support
+
+For general questions and discussions:
+- 🐙 **GitHub Issues**: For bug reports and feature requests
+- 💬 **GitHub Discussions**: For questions and community help
+
+### Professional Support & Consulting
+
+For production deployments, custom implementations, or professional consulting:
+
+🌐 **[run-as-daemon.ru](https://run-as-daemon.ru)** - _"Defense by design. Speed by default."_
+
+Professional services:
+- 🏗️ **Custom Architecture Design** - Tailored mesh network solutions
+- 🔒 **Security Consulting** - Audits, hardening, and compliance
+- 📊 **Production Deployments** - High-availability, zero-trust implementations
+- 🤖 **Automation & CI/CD** - Infrastructure as Code and GitOps
+- 🎓 **Training & Workshops** - Team training and knowledge transfer
+- 🛡️ **Managed Services** - Ongoing support and monitoring
+
+**Contact**:
+- 🌐 Website: [run-as-daemon.ru](https://run-as-daemon.ru)
+- 🐙 GitHub: [@ranas-mukminov](https://github.com/ranas-mukminov)
+- 💬 Telegram/WhatsApp: Available via website
+- 📧 Email: Contact form on website
