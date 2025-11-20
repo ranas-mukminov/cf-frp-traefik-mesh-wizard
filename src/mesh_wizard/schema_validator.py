@@ -1,4 +1,5 @@
 """Validate mesh YAML files."""
+
 from __future__ import annotations
 
 from functools import lru_cache
@@ -27,5 +28,7 @@ def validate_dict(data: Dict[str, Any]) -> None:
     validator = _compiled_validator()
     errors = sorted(validator.iter_errors(data), key=lambda err: err.path)
     if errors:
-        message = "; ".join(f"{'/'.join(map(str, error.path))}: {error.message}" for error in errors)
+        message = "; ".join(
+            f"{'/'.join(map(str, error.path))}: {error.message}" for error in errors
+        )
         raise ValueError(f"Mesh schema validation failed: {message}")

@@ -2,7 +2,6 @@ from typer.testing import CliRunner
 
 from mesh_wizard import cli
 
-
 runner = CliRunner()
 
 

@@ -1,7 +1,8 @@
 """Cloudflare Tunnel config generator."""
+
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Any, Dict, List
 
 from ..model import DNSMapping, MeshTopology, Node, Service
 
@@ -60,7 +61,9 @@ def generate(topology: MeshTopology) -> Dict[str, Any]:
     for mapping in cloudflare.dns:
         ingress.append(_build_ingress_item(topology, mapping))
     ingress.append({"service": "http_status:404"})
-    credentials_path = cloudflare.credentials_file or f"/etc/cloudflared/{cloudflare.tunnel_name}.json"
+    credentials_path = (
+        cloudflare.credentials_file or f"/etc/cloudflared/{cloudflare.tunnel_name}.json"
+    )
     return {
         "tunnel": cloudflare.tunnel_name,
         "credentials-file": credentials_path,

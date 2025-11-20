@@ -1,4 +1,5 @@
 """Traefik dynamic configuration generator."""
+
 from __future__ import annotations
 
 from typing import Dict, List
@@ -73,11 +74,7 @@ def _generate_http_section(node: Node, services: List[Service]) -> Dict[str, obj
         if tls_block is not None:
             routers[router_name]["tls"] = tls_block
         svcs[service_name] = {
-            "loadBalancer": {
-                "servers": [
-                    {"url": _http_backend_url(node, service)}
-                ]
-            }
+            "loadBalancer": {"servers": [{"url": _http_backend_url(node, service)}]}
         }
     return {"routers": routers, "services": svcs}
 
@@ -97,11 +94,7 @@ def _generate_tcp_section(node: Node, services: List[Service]) -> Dict[str, obje
         if tls_block is not None:
             routers[router_name]["tls"] = tls_block
         svcs[service_name] = {
-            "loadBalancer": {
-                "servers": [
-                    {"address": _tcp_backend_address(node, service)}
-                ]
-            }
+            "loadBalancer": {"servers": [{"address": _tcp_backend_address(node, service)}]}
         }
     return {"routers": routers, "services": svcs}
 
@@ -111,8 +104,16 @@ def generate(topology: MeshTopology) -> Dict[str, Dict[str, object]]:
     for node in topology.nodes.values():
         if not node.traefik or not node.traefik.enabled:
             continue
-        http_services = [svc for svc in topology.services.values() if svc.node == node.id and svc.type == "http" and svc.via == "traefik"]
-        tcp_services = [svc for svc in topology.services.values() if svc.node == node.id and svc.type == "tcp" and svc.via == "traefik"]
+        http_services = [
+            svc
+            for svc in topology.services.values()
+            if svc.node == node.id and svc.type == "http" and svc.via == "traefik"
+        ]
+        tcp_services = [
+            svc
+            for svc in topology.services.values()
+            if svc.node == node.id and svc.type == "tcp" and svc.via == "traefik"
+        ]
         dynamic: Dict[str, object] = {}
         if http_services:
             dynamic["http"] = _generate_http_section(node, http_services)

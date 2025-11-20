@@ -1,4 +1,5 @@
 """FRP client config generator."""
+
 from __future__ import annotations
 
 from typing import Dict
@@ -21,18 +22,18 @@ def _resolve_server_address(topology: MeshTopology, value: str | None) -> str:
 def _render_proxy(proxy) -> str:
     lines = [
         "[[proxies]]",
-        f"name = \"{proxy.name}\"",
-        f"type = \"{proxy.type}\"",
-        f"localIP = \"{proxy.local_ip}\"",
+        f'name = "{proxy.name}"',
+        f'type = "{proxy.type}"',
+        f'localIP = "{proxy.local_ip}"',
         f"localPort = {proxy.local_port}",
     ]
     if proxy.remote_port:
         lines.append(f"remotePort = {proxy.remote_port}")
     if proxy.custom_domains:
-        domains = ", ".join(f'\"{domain}\"' for domain in proxy.custom_domains)
+        domains = ", ".join(f'"{domain}"' for domain in proxy.custom_domains)
         lines.append(f"customDomains = [{domains}]")
     if proxy.subdomain:
-        lines.append(f"subdomain = \"{proxy.subdomain}\"")
+        lines.append(f'subdomain = "{proxy.subdomain}"')
     return "\n".join(lines)
 
 
@@ -43,15 +44,14 @@ def _render_client(node: Node, topology: MeshTopology) -> str:
     server_addr = _resolve_server_address(topology, frp.server_addr)
     server_port = frp.server_port or 7000
     header = [
-        f"serverAddr = \"{server_addr}\"",
+        f'serverAddr = "{server_addr}"',
         f"serverPort = {server_port}",
-        "auth.method = \"token\"",
-        f"auth.token = \"{frp.token}\"",
+        'auth.method = "token"',
+        f'auth.token = "{frp.token}"',
     ]
-    proxy_blocks = [
-        _render_proxy(proxy)
-        for proxy in frp.proxies
-    ] or ["# Define proxies in mesh YAML"]
+    proxy_blocks = [_render_proxy(proxy) for proxy in frp.proxies] or [
+        "# Define proxies in mesh YAML"
+    ]
     return "\n".join(header + ["", *proxy_blocks, ""]).strip() + "\n"
 
 

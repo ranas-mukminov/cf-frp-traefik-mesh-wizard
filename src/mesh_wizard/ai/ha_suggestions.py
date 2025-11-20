@@ -1,10 +1,12 @@
 """HA / failover helper."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import List, Optional
 
 from ai_providers.base import AIProvider, registry
+
 from ..model import MeshTopology
 
 
@@ -19,7 +21,8 @@ def _build_prompt(topology: MeshTopology) -> str:
     lan_nodes = [node.id for node in topology.nodes.values() if node.role != "public_vps"]
     return (
         "Suggest high availability improvements for the following mesh:\n"
-        f"Public nodes: {public_nodes}\n" f"LAN nodes: {lan_nodes}\n"
+        f"Public nodes: {public_nodes}\n"
+        f"LAN nodes: {lan_nodes}\n"
         f"Services: {[service.id for service in topology.services.values()]}\n"
         "Recommend redundant ingress, backup tunnels, and health checks."
     )

@@ -1,10 +1,10 @@
 """FRP server config generator."""
+
 from __future__ import annotations
 
 from typing import Dict
 
 from ..model import FRPConfig, MeshTopology, Node
-
 
 DEFAULT_LOG_LEVEL = "info"
 
@@ -23,16 +23,16 @@ def _render_server(node: Node) -> str:
     vhost_https = frp.vhost_https_port or 19443
     token = frp.token or "CHANGE_ME_SECURE_TOKEN"
     lines = [
-        f"bindAddr = \"0.0.0.0\"",
+        'bindAddr = "0.0.0.0"',
         f"bindPort = {bind_port}",
         f"vhostHTTPPort = {vhost_http}",
         f"vhostHTTPSPort = {vhost_https}",
-        "auth.method = \"token\"",
-        f"auth.token = \"{token}\"",
+        'auth.method = "token"',
+        f'auth.token = "{token}"',
         "transport.maxPoolCount = 5",
         "transport.heartbeatTimeout = 90",
-        "log.to = \"console\"",
-        f"log.level = \"{DEFAULT_LOG_LEVEL}\"",
+        'log.to = "console"',
+        f'log.level = "{DEFAULT_LOG_LEVEL}"',
     ]
     return "\n".join(lines) + "\n"
 

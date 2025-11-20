@@ -1,4 +1,5 @@
 """Example OpenAI provider (no secrets embedded)."""
+
 from __future__ import annotations
 
 from typing import Optional
