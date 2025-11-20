@@ -1,6 +1,8 @@
 mesh:
   name: homelab-k3s-mail
-  description: Cloudflare tunnel landing on Traefik VPS, FRP into LAN for apps and mail relay
+  description: >
+    Cloudflare tunnel landing on Traefik VPS,
+    FRP into LAN for apps and mail relay
 
 cloudflare:
   account_id: CF_ACCOUNT_ID

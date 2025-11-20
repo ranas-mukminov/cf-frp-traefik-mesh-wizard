@@ -1,4 +1,5 @@
 """AI-assisted topology scaffolding."""
+
 from __future__ import annotations
 
 import re
@@ -18,7 +19,9 @@ def _extract_hostnames(text: str) -> List[str]:
     return hosts or ["apps.example.com"]
 
 
-def generate_from_text(description: str, *, provider: Optional[AIProvider] = None) -> Dict[str, object]:
+def generate_from_text(
+    description: str, *, provider: Optional[AIProvider] = None
+) -> Dict[str, object]:
     """Generate a draft mesh YAML dict from text using an AI hint."""
     provider = provider or registry.require()
     ai_hint = provider.complete(

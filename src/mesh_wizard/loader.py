@@ -1,4 +1,5 @@
 """Loading utilities for mesh topology files."""
+
 from __future__ import annotations
 
 from pathlib import Path

@@ -1,5 +1,3 @@
-import yaml
-
 from mesh_wizard.generators import cloudflare_generator
 from mesh_wizard.loader import load_topology
 

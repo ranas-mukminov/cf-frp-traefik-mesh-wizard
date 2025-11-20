@@ -1,8 +1,9 @@
 """Domain model for mesh topology."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 
 @dataclass
@@ -242,7 +243,9 @@ class MeshTopology:
             )
 
         nodes = {item["id"]: MeshTopology._build_node(item) for item in data.get("nodes", [])}
-        services = {item["id"]: MeshTopology._build_service(item) for item in data.get("services", [])}
+        services = {
+            item["id"]: MeshTopology._build_service(item) for item in data.get("services", [])
+        }
 
         return MeshTopology(mesh=mesh, nodes=nodes, services=services, cloudflare=cloudflare)
 

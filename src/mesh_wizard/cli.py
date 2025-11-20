@@ -1,4 +1,5 @@
 """Command line interface for mesh wizard."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -9,7 +10,14 @@ import yaml
 from rich.console import Console
 
 from . import __version__
-from .generators import cloudflare_generator, diagram_generator, frp_client_generator, frp_server_generator, traefik_dynamic_generator, traefik_static_generator
+from .generators import (
+    cloudflare_generator,
+    diagram_generator,
+    frp_client_generator,
+    frp_server_generator,
+    traefik_dynamic_generator,
+    traefik_static_generator,
+)
 from .loader import load_raw, load_topology
 
 app = typer.Typer(help="Cloudflare + FRP + Traefik mesh wizard")
@@ -29,7 +37,9 @@ def _write_text(path: Path, content: str) -> None:
 
 
 @app.callback()
-def main_callback(version: Optional[bool] = typer.Option(False, "--version", "-v", help="Show version")) -> None:
+def main_callback(
+    version: Optional[bool] = typer.Option(False, "--version", "-v", help="Show version"),
+) -> None:
     """Root callback to expose --version."""
     if version:
         console.print(f"cf-frp-traefik-mesh-wizard {__version__}")
@@ -37,7 +47,7 @@ def main_callback(version: Optional[bool] = typer.Option(False, "--version", "-v
 
 
 @app.command()
-def init(path: Path = typer.Argument(Path("mesh.yaml"))):
+def init(path: Path = typer.Argument(default="mesh.yaml")):
     """Scaffold a minimal mesh YAML."""
     if path.exists():
         typer.confirm(f"{path} exists, overwrite?", abort=True)
@@ -115,13 +125,21 @@ def plan(mesh_file: Path):
         console.print(f" • {service.id} ({service.type}) via {service.via} @ {service.node}")
     console.print("Artifacts:")
     console.print(f" - Cloudflare config: {'yes' if topology.cloudflare else 'no'}")
-    console.print(f" - FRP servers: {sum(1 for node in topology.nodes.values() if node.frp and node.frp.server)}")
-    console.print(f" - FRP clients: {sum(1 for node in topology.nodes.values() if node.frp and node.frp.client)}")
-    console.print(f" - Traefik nodes: {sum(1 for node in topology.nodes.values() if node.traefik and node.traefik.enabled)}")
+    frp_servers = sum(1 for node in topology.nodes.values() if node.frp and node.frp.server)
+    console.print(f" - FRP servers: {frp_servers}")
+    frp_clients = sum(1 for node in topology.nodes.values() if node.frp and node.frp.client)
+    console.print(f" - FRP clients: {frp_clients}")
+    traefik_count = sum(
+        1 for node in topology.nodes.values() if node.traefik and node.traefik.enabled
+    )
+    console.print(f" - Traefik nodes: {traefik_count}")
 
 
 @app.command()
-def render(mesh_file: Path, out: Path = typer.Option(Path("out"), "--out", help="Output directory")):
+def render(
+    mesh_file: Path,
+    out: Path = typer.Option(default="out", help="Output directory"),
+):
     """Generate configs into an output directory."""
     topology = load_topology(mesh_file)
     out.mkdir(parents=True, exist_ok=True)
@@ -158,7 +176,7 @@ def _lazy_import_ai():  # pragma: no cover - optional dependency
 
 
 @app.command("ai-suggest")
-def ai_suggest(from_text: Path, out: Path = typer.Argument(Path("mesh-ai.yaml"))):
+def ai_suggest(from_text: Path, out: Path = typer.Argument(default="mesh-ai.yaml")):
     """Generate a draft mesh YAML from natural language description."""
     topology_nl_to_yaml, _ = _lazy_import_ai()
     description = from_text.read_text(encoding="utf-8")
@@ -168,7 +186,7 @@ def ai_suggest(from_text: Path, out: Path = typer.Argument(Path("mesh-ai.yaml"))
 
 
 @app.command("ai-ha")
-def ai_ha(mesh_file: Path, out: Path = typer.Argument(Path("ha-plan.md"))):
+def ai_ha(mesh_file: Path, out: Path = typer.Argument(default="ha-plan.md")):
     """Request HA / failover suggestions for an existing mesh."""
     _, ha_suggestions = _lazy_import_ai()
     topology = load_topology(mesh_file)

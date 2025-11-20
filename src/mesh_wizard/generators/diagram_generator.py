@@ -1,4 +1,5 @@
 """ASCII diagram generator for mesh topologies."""
+
 from __future__ import annotations
 
 from typing import List
@@ -19,12 +20,14 @@ def build_ascii(topology: MeshTopology) -> str:
     lines: List[str] = ["[Internet]"]
     if topology.cloudflare:
         zone = topology.cloudflare.zone or "Cloudflare"
-        lines.extend([
-            "   |",
-            f"[ Cloudflare DNS ({zone}) ]",
-            "   |",
-            f"[ Cloudflare Tunnel: {topology.cloudflare.tunnel_name} ]",
-        ])
+        lines.extend(
+            [
+                "   |",
+                f"[ Cloudflare DNS ({zone}) ]",
+                "   |",
+                f"[ Cloudflare Tunnel: {topology.cloudflare.tunnel_name} ]",
+            ]
+        )
     for node in topology.nodes.values():
         label = f"[ Node {node.id} ({node.role}) ]"
         lines.extend(["   |", label])
