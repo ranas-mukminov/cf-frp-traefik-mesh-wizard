@@ -7,7 +7,8 @@ from typing import Dict, List, Optional
 
 from ai_providers.base import AIProvider, registry
 
-DEFAULT_TOKEN = "REPLACE_WITH_STRONG_TOKEN"
+# This is a placeholder token for AI-generated configurations, not an actual secret
+DEFAULT_TOKEN = "REPLACE_WITH_STRONG_TOKEN"  # nosec B105
 
 
 def _extract_hostnames(text: str) -> List[str]:
